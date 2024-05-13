@@ -1,0 +1,20 @@
+{
+  "name": "s47_maggied",
+  "version": "1.0.0",
+  "description": "cook S.\r This is going to be a website that I'm creating for my ASAP project. Here you will find a recepie to delecious maggie which you can easily follow for your own. Make sure to leave a feedback where you can talk about the recepie itself or a comment where you can describe your own recepie.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongodb": "^6.6.1",
+    "mongoose": "^8.3.4",
+    "nodemon": "^3.1.0"
+  }
+}
