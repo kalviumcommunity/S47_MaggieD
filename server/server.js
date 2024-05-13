@@ -3,12 +3,15 @@ const dotenv = require("dotenv")
 const app = express()
 const dbConnect = require("./db/dbConnection.js")
 const mongoose = require('mongoose');
+const router = require('./route.js') 
 
 dotenv.config()
 
 const DATABASE_URL = process.env.DATABASE_URL 
 
 dbConnect(DATABASE_URL)
+
+app.use(router);
 
 app.get("/home", (req, res) => {
     const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : "Disconnected";
