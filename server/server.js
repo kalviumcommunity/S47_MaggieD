@@ -1,11 +1,14 @@
 const express = require("express")
 const dotenv = require("dotenv")
 const app = express()
+const cors = require('cors');
 const dbConnect = require("./db/dbConnection.js")
 const mongoose = require('mongoose');
 const router = require('./route.js') 
 
 dotenv.config()
+
+app.use(cors());
 
 const DATABASE_URL = process.env.DATABASE_URL 
 
