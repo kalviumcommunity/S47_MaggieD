@@ -1,6 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import Joi from 'joi';
 
 function Form({ setData, formType, formData, setFormData, setFormType }) {
+  const [errors, setErrors] = useState({});
+
+  // Function to validate Roman numerals up to 16 or 17
+  const validateRomanNumeral = (value, helpers) => {
+    const romanRegex = /^(XVI|XV|XIV|XIII|XII|XI|X|IX|VIII|VII|VI|V|IV|III|II|I)$/;
+    if (!romanRegex.test(value)) {
+      return helpers.error('any.invalid');
+    }
+    return value;
+  };
+
+  const schema = Joi.object({
+    act: Joi.string().custom(validateRomanNumeral, 'Roman numeral validation').required().label('Act'),
+    title: Joi.string().min(4).required().label('Title'),
+    description: Joi.string().required().label('Description'),
+    createdBy: Joi.string().required().label('Created By')
+  });
+
+  const validate = () => {
+    const result = schema.validate(formData, { abortEarly: false, allowUnknown: true });
+    if (!result.error) return null;
+
+    const newErrors = {};
+    for (let item of result.error.details) {
+      newErrors[item.path[0]] = item.message;
+    }
+    return newErrors;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -11,6 +41,11 @@ function Form({ setData, formType, formData, setFormData, setFormType }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const validationErrors = validate();
+    if (validationErrors) {
+      setErrors(validationErrors);
+      return;
+    }
 
     const url = formType === 'Add' ? 'http://localhost:3000/posting' : `http://localhost:3000/updating/${formData._id}`;
     const method = formType === 'Add' ? 'POST' : 'PUT';
@@ -40,6 +75,7 @@ function Form({ setData, formType, formData, setFormData, setFormType }) {
           createdBy: ''
         });
         setFormType('Add');
+        setErrors({});
       } else {
         console.error('Failed to submit form');
       }
@@ -60,6 +96,7 @@ function Form({ setData, formType, formData, setFormData, setFormType }) {
           onChange={handleChange}
           required
         />
+        {errors.act && <div className="alert alert-danger">{errors.act}</div>}
       </div>
       <div>
         <label htmlFor="title">Title:</label>
@@ -71,6 +108,7 @@ function Form({ setData, formType, formData, setFormData, setFormType }) {
           onChange={handleChange}
           required
         />
+        {errors.title && <div className="alert alert-danger">{errors.title}</div>}
       </div>
       <div>
         <label htmlFor="description">Description:</label>
@@ -81,6 +119,7 @@ function Form({ setData, formType, formData, setFormData, setFormType }) {
           onChange={handleChange}
           required
         />
+        {errors.description && <div className="alert alert-danger">{errors.description}</div>}
       </div>
       <div>
         <label htmlFor="createdBy">Created By:</label>
@@ -92,6 +131,7 @@ function Form({ setData, formType, formData, setFormData, setFormType }) {
           onChange={handleChange}
           required
         />
+        {errors.createdBy && <div className="alert alert-danger">{errors.createdBy}</div>}
       </div>
       <button type="submit">{formType} Entity</button>
     </form>
