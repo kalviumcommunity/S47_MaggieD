@@ -1,24 +1,30 @@
-const express = require("express")
-const dotenv = require("dotenv")
-const app = express()
+const express = require("express");
+const dotenv = require("dotenv");
 const cors = require('cors');
-const dbConnect = require("./db/dbConnection.js")
 const mongoose = require('mongoose');
-const router = require('./route.js') 
+const router = require('./route.js');
+const dbConnect = require("./db/dbConnection.js");
 
-dotenv.config()
+dotenv.config();
 
+const app = express();
+const DATABASE_URL = process.env.DATABASE_URL;
+
+// Middleware
 app.use(cors());
+app.use(express.json()); // Add middleware to parse JSON bodies
 
-const DATABASE_URL = process.env.DATABASE_URL 
-
-dbConnect(DATABASE_URL)
+// Database connection
+dbConnect(DATABASE_URL);
 
 app.use(router);
 
 app.get("/home", (req, res) => {
-    const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : "Disconnected";
-    res.send(`Datbase connection Status: ${dbStatus}`);
-})
+    const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
+    res.send(`Database connection Status: ${dbStatus}`);
+});
 
-app.listen(3000)
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
