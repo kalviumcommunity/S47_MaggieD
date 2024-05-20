@@ -17,27 +17,40 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const cookies = document.cookie.split(';').reduce((acc, cookie) => {
-      const [name, value] = cookie.trim().split('=');
-      acc[name] = value;
-      return acc;
-    }, {});
-    if (cookies.username && cookies.password) {
+    const token = localStorage.getItem('token');
+    if (token) {
       setIsLoggedIn(true);
+      fetchData(token);
     }
+  }, [isLoggedIn]);
 
-    fetch('http://localhost:3000/getting')
-      .then(response => response.json())
-      .then(data => setData(data))
-      .catch(error => console.error('Error fetching data:', error));
-  }, []);
+  const fetchData = async (token) => {
+    try {
+      const response = await fetch('http://localhost:3000/getting', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      setData(data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
 
   const handleDelete = async (id) => {
+    const token = localStorage.getItem('token');
     try {
       const response = await fetch(`http://localhost:3000/deleting/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
-
+ 
       if (response.ok) {
         setData(prevData => prevData.filter(entity => entity._id !== id));
         console.log('Entity deleted successfully');
@@ -73,12 +86,14 @@ function App() {
   const handleLogout = async () => {
     try {
       const response = await fetch('http://localhost:3000/logout', {
-        method: 'POST'
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
       const data = await response.json();
       if (response.ok) {
-        document.cookie = 'username=; Max-Age=0';
-        document.cookie = 'password=; Max-Age=0';
+        localStorage.removeItem('token');
         setIsLoggedIn(false);
         console.log(data.message);
       } else {
