@@ -13,11 +13,11 @@ function Login({ onLogin }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, password }),
+        credentials: 'include', // Include credentials (cookies, etc.)
       });
       const data = await response.json();
       if (response.ok) {
-        document.cookie = `username=${username}; path=/`;
-        document.cookie = `password=${password}; path=/`;
+        localStorage.setItem('token', data.token); // Store token in localStorage
         onLogin();
       } else {
         console.error('Login failed:', data.message);

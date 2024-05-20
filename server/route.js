@@ -1,6 +1,11 @@
+// route.js
+
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const UserModel = require("./UserModel.js");
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
 // GET route to fetch all entities
 router.get("/getting", async (req, res) => {
@@ -17,7 +22,7 @@ router.post('/posting', async (req, res) => {
   try {
     const newUser = new UserModel(req.body);
     await newUser.save();
-    res.status(201).json(newUser); // Respond with the new entity
+    res.status(201).json(newUser);
   } catch (err) {
     res.status(400).json({ message: 'Failed to create entity', error: err.message });
   }
@@ -50,18 +55,25 @@ router.delete('/deleting/:id', async (req, res) => {
 });
 
 // POST route for login
-router.post('/login', (req, res) => {
-  const { username, password } = req.body;
-  // Normally, validate username and password here (e.g., check against a database)
-  res.cookie('username', username, { httpOnly: true });
-  res.cookie('password', password, { httpOnly: true });
-  res.json({ message: 'Login successful' });
-});
 
+// POST route for login
+router.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  // Validate the username and password against your database here
+  // For demonstration, assume login is successful if username and password are not empty
+
+  if (username && password) {
+    const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '1h' });
+    res.cookie('token', token, { httpOnly: true, sameSite: 'None', secure: true }); // Set token cookie
+    res.json({ message: 'Login successful' });
+  } else {
+    res.status(401).json({ message: 'Invalid credentials' });
+  }
+});
 // POST route for logout
 router.post('/logout', (req, res) => {
-  res.clearCookie('username');
-  res.clearCookie('password');
+  res.clearCookie('token', { path: '/' }); // Clear token cookie
   res.json({ message: 'Logout successful' });
 });
 
