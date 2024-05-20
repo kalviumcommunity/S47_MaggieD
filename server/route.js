@@ -49,4 +49,20 @@ router.delete('/deleting/:id', async (req, res) => {
   }
 });
 
+// POST route for login
+router.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  // Normally, validate username and password here (e.g., check against a database)
+  res.cookie('username', username, { httpOnly: true });
+  res.cookie('password', password, { httpOnly: true });
+  res.json({ message: 'Login successful' });
+});
+
+// POST route for logout
+router.post('/logout', (req, res) => {
+  res.clearCookie('username');
+  res.clearCookie('password');
+  res.json({ message: 'Logout successful' });
+});
+
 module.exports = router;

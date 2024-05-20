@@ -81,6 +81,7 @@ form input, form textarea {
 .entity p {
   margin-bottom: 20px; /* Space below the description */
 }
+
 .entities-container {
   height: auto; /* Set height to auto to allow it to expand based on content */
   margin-bottom: 20px; /* Add margin at the bottom of the container */
@@ -88,4 +89,24 @@ form input, form textarea {
 
 .entity:last-child {
   margin-bottom: 20px; /* Add margin at the bottom of the last entity */
+}
+
+.Logout {
+  background-color: #8B4513; /* Sienna color for an aged look */
+  color: #fff; /* White text */
+  font-family: 'Garamond', serif; /* Match the ancient-looking font */
+  padding: 10px 20px; /* Add padding */
+  border: 2px solid #5F3B1B; /* Darker border for contrast */
+  border-radius: 5px; /* Slightly rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  margin: 10px; /* Space around buttons */
+  transition: background-color 0.3s, transform 0.3s; /* Smooth transition */
+  position: absolute; /* Absolute positioning */
+  top: 10px; /* Align to the top */
+  right: 10px; /* Align to the right */
+}
+
+.Logout:hover {
+  background-color: #A0522D; /* Darker on hover */
+  transform: scale(1.05); /* Slightly larger on hover */
 }
