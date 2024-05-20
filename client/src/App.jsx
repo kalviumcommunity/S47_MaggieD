@@ -15,6 +15,8 @@ function App() {
     createdBy: ''
   });
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -35,6 +37,9 @@ function App() {
       });
       const data = await response.json();
       setData(data);
+
+      const uniqueUsers = [...new Set(data.map(entity => entity.createdBy))];
+      setUsers(uniqueUsers);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -50,7 +55,7 @@ function App() {
           'Content-Type': 'application/json',
         },
       });
- 
+
       if (response.ok) {
         setData(prevData => prevData.filter(entity => entity._id !== id));
         console.log('Entity deleted successfully');
@@ -104,6 +109,12 @@ function App() {
     }
   };
 
+  const handleUserChange = (event) => {
+    setSelectedUser(event.target.value);
+  };
+
+  const filteredData = selectedUser ? data.filter(entity => entity.createdBy === selectedUser) : data;
+
   if (!isLoggedIn) {
     return <Login onLogin={handleLogin} />;
   }
@@ -114,14 +125,23 @@ function App() {
         <h1>S47 Special Maggie Recipe</h1>
         <p>Hark, gentlefolk! Within this digital tome, amidst the swirling chaos of our world, doth lie a culinary odyssey unlike any other – the creation of a Maggie recipe, by none other than the esteemed Squad 47. Here, each noble member shall bestow an ingredient, weaving a tapestry of flavors fit for kings and queens. Join us, fair comrades, as we embark upon this epicurean journey, where each spice and herb shall dance upon the palate like Shakespearean verse.</p>
       </div>
+      <div className="filter-container">
+        <label htmlFor="userFilter">Filter by User:</label>
+        <select id="userFilter" value={selectedUser} onChange={handleUserChange}>
+          <option value="">All Users</option>
+          {users.map(user => (
+            <option key={user} value={user}>{user}</option>
+          ))}
+        </select>
+      </div>
       <div className="entities-container">
-        {data.map((entity) => (
+        {filteredData.map((entity) => (
           <Entity key={entity._id} data={entity} handleDelete={handleDelete} handleUpdate={handleUpdate} />
         ))}
       </div>
       <div className="Add">
         <button onClick={toggleFormVisibility}>{formVisible ? 'Cancel Form' : 'Add Entity'}</button>
-        {formVisible && <Form setData={setData} formType={formType} formData={formData} setFormData={setFormData} setFormType={setFormType} />}
+        {formVisible && <Form setData={setData} formType={formType} formData={formData} setFormData={setFormData} setFormType={setFormType} setUsers={setUsers} />}
       </div>
       <button className="Logout" onClick={handleLogout}>Logout</button>
     </>
