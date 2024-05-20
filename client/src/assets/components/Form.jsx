@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Joi from 'joi';
 
-function Form({ setData, formType, formData, setFormData, setFormType }) {
+function Form({ setData, formType, formData, setFormData, setFormType, setUsers }) {
   const [errors, setErrors] = useState({});
 
   // Function to validate Roman numerals up to 16 or 17
@@ -68,6 +68,15 @@ function Form({ setData, formType, formData, setFormData, setFormType }) {
             return prevData.map(entity => entity._id === newEntity._id ? newEntity : entity);
           }
         });
+
+        // Update the list of users if the createdBy value is new
+        setUsers(prevUsers => {
+          if (!prevUsers.includes(newEntity.createdBy)) {
+            return [...prevUsers, newEntity.createdBy];
+          }
+          return prevUsers;
+        });
+
         setFormData({
           act: '',
           title: '',
