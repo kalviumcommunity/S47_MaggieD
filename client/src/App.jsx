@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import Entity from './assets/components/entity.jsx';
 import Form from './assets/components/Form.jsx';
+import Login from './assets/components/Login.jsx';
 
 function App() {
   const [data, setData] = useState([]);
@@ -13,8 +14,18 @@ function App() {
     description: '',
     createdBy: ''
   });
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
+    const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+      const [name, value] = cookie.trim().split('=');
+      acc[name] = value;
+      return acc;
+    }, {});
+    if (cookies.username && cookies.password) {
+      setIsLoggedIn(true);
+    }
+
     fetch('http://localhost:3000/getting')
       .then(response => response.json())
       .then(data => setData(data))
@@ -55,6 +66,33 @@ function App() {
     });
   };
 
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/logout', {
+        method: 'POST'
+      });
+      const data = await response.json();
+      if (response.ok) {
+        document.cookie = 'username=; Max-Age=0';
+        document.cookie = 'password=; Max-Age=0';
+        setIsLoggedIn(false);
+        console.log(data.message);
+      } else {
+        console.error('Logout failed:', data.message);
+      }
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
+  if (!isLoggedIn) {
+    return <Login onLogin={handleLogin} />;
+  }
+
   return (
     <>
       <div className="Intro">
@@ -70,6 +108,7 @@ function App() {
         <button onClick={toggleFormVisibility}>{formVisible ? 'Cancel Form' : 'Add Entity'}</button>
         {formVisible && <Form setData={setData} formType={formType} formData={formData} setFormData={setFormData} setFormType={setFormType} />}
       </div>
+      <button className="Logout" onClick={handleLogout}>Logout</button>
     </>
   );
 }
